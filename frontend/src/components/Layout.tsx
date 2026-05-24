@@ -9,41 +9,63 @@ import {
   User,
   LogOut,
   Bell,
-  Plus,
-  Menu,
-  X } from
-'lucide-react';
+  Plus
+} from 'lucide-react';
+
 export function Layout() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  const cachedUser = localStorage.getItem('user');
+  const user = cachedUser ? JSON.parse(cachedUser) : { fullName: 'Nguyễn Văn A', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026024d' };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  };
+
   const navItems = [
-  {
-    path: '/dashboard',
-    label: 'Dashboard',
-    icon: LayoutDashboard
-  },
-  {
-    path: '/transactions',
-    label: 'Transactions',
-    icon: ArrowRightLeft
-  },
-  {
-    path: '/accounts',
-    label: 'Accounts',
-    icon: Wallet
-  },
-  {
-    path: '/categories',
-    label: 'Categories',
-    icon: Tags
-  },
-  {
-    path: '/budgets',
-    label: 'Budgets',
-    icon: Target
-  }];
+    {
+      path: '/dashboard',
+      label: 'Tổng quan',
+      icon: LayoutDashboard
+    },
+    {
+      path: '/transactions',
+      label: 'Giao dịch',
+      icon: ArrowRightLeft
+    },
+    {
+      path: '/accounts',
+      label: 'Tài khoản',
+      icon: Wallet
+    },
+    {
+      path: '/categories',
+      label: 'Danh mục',
+      icon: Tags
+    },
+    {
+      path: '/budgets',
+      label: 'Ngân sách',
+      icon: Target
+    }
+  ];
+
+  const getPageTitle = (path: string) => {
+    switch (path) {
+      case '/dashboard': return 'Tổng quan tài chính';
+      case '/transactions': return 'Quản lý giao dịch';
+      case '/accounts': return 'Danh sách tài khoản';
+      case '/categories': return 'Quản lý danh mục';
+      case '/budgets': return 'Ngân sách chi tiêu';
+      case '/profile': return 'Hồ sơ cá nhân';
+      default: return 'Tổng quan tài chính';
+    }
+  };
 
   const isActive = (path: string) => location.pathname === path;
+
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
       {/* Desktop Sidebar */}
@@ -62,39 +84,36 @@ export function Layout() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${isActive(item.path) ? 'bg-navy-800 text-emerald-400 font-medium' : 'text-slate-300 hover:bg-navy-800 hover:text-white'}`}>
-                
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${isActive(item.path) ? 'bg-navy-800 text-emerald-400 font-medium' : 'text-slate-300 hover:bg-navy-800 hover:text-white'}`}
+              >
                 <Icon
                   size={20}
-                  className={
-                  isActive(item.path) ? 'text-emerald-400' : 'text-slate-400'
-                  } />
-                
+                  className={isActive(item.path) ? 'text-emerald-400' : 'text-slate-400'}
+                />
                 <span>{item.label}</span>
-              </Link>);
-
+              </Link>
+            );
           })}
         </nav>
 
         <div className="p-4 border-t border-navy-800">
           <Link
             to="/profile"
-            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors mb-1 ${isActive('/profile') ? 'bg-navy-800 text-emerald-400 font-medium' : 'text-slate-300 hover:bg-navy-800 hover:text-white'}`}>
-            
+            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors mb-1 ${isActive('/profile') ? 'bg-navy-800 text-emerald-400 font-medium' : 'text-slate-300 hover:bg-navy-800 hover:text-white'}`}
+          >
             <User
               size={20}
-              className={
-              isActive('/profile') ? 'text-emerald-400' : 'text-slate-400'
-              } />
-            
-            <span>Profile</span>
+              className={isActive('/profile') ? 'text-emerald-400' : 'text-slate-400'}
+            />
+            <span>Hồ sơ cá nhân</span>
           </Link>
           <Link
             to="/login"
-            className="flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-navy-800 hover:text-red-400 transition-colors">
-            
+            onClick={handleLogout}
+            className="flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-navy-800 hover:text-red-400 transition-colors"
+          >
             <LogOut size={20} className="text-slate-400" />
-            <span>Logout</span>
+            <span>Đăng xuất</span>
           </Link>
         </div>
       </aside>
@@ -112,7 +131,7 @@ export function Layout() {
 
           <div className="hidden md:block">
             <h1 className="text-xl font-semibold text-slate-800 capitalize">
-              {location.pathname.substring(1) || 'Dashboard'}
+              {getPageTitle(location.pathname)}
             </h1>
           </div>
 
@@ -123,12 +142,12 @@ export function Layout() {
             </button>
             <div className="hidden md:flex items-center space-x-3 pl-4 border-l border-slate-200">
               <img
-                src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
+                src={user.avatarUrl || "https://i.pravatar.cc/150"}
                 alt="User avatar"
-                className="w-8 h-8 rounded-full border border-slate-200" />
-              
+                className="w-8 h-8 rounded-full border border-slate-200"
+              />
               <span className="text-sm font-medium text-slate-700">
-                Nguyen Van A
+                {user.fullName}
               </span>
             </div>
           </div>
@@ -138,54 +157,49 @@ export function Layout() {
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-24 md:pb-8">
           <Outlet />
         </div>
-
-        {/* Mobile FAB */}
-        <button className="md:hidden fixed bottom-20 right-4 w-14 h-14 bg-emerald-500 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-emerald-600 transition-colors z-20">
-          <Plus size={24} />
-        </button>
       </main>
 
       {/* Mobile Bottom Nav */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around items-center h-16 px-2 z-30 pb-safe">
         {[
-        {
-          path: '/dashboard',
-          icon: LayoutDashboard,
-          label: 'Home'
-        },
-        {
-          path: '/transactions',
-          icon: ArrowRightLeft,
-          label: 'Trans'
-        },
-        {
-          path: '/budgets',
-          icon: Target,
-          label: 'Budgets'
-        },
-        {
-          path: '/profile',
-          icon: User,
-          label: 'Profile'
-        }].
-        map((item) => {
+          {
+            path: '/dashboard',
+            icon: LayoutDashboard,
+            label: 'Trang chủ'
+          },
+          {
+            path: '/transactions',
+            icon: ArrowRightLeft,
+            label: 'Giao dịch'
+          },
+          {
+            path: '/budgets',
+            icon: Target,
+            label: 'Ngân sách'
+          },
+          {
+            path: '/profile',
+            icon: User,
+            label: 'Cá nhân'
+          }
+        ].map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
           return (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${active ? 'text-emerald-500' : 'text-slate-500'}`}>
-              
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${active ? 'text-emerald-500' : 'text-slate-500'}`}
+            >
               <Icon
                 size={20}
-                className={active ? 'text-emerald-500' : 'text-slate-400'} />
-              
+                className={active ? 'text-emerald-500' : 'text-slate-400'}
+              />
               <span className="text-[10px] font-medium">{item.label}</span>
-            </Link>);
-
+            </Link>
+          );
         })}
       </nav>
-    </div>);
-
+    </div>
+  );
 }
