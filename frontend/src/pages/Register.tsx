@@ -1,19 +1,39 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
+import { api } from '../lib/api';
+
 export function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    setError('');
+    try {
+      const data = await api.post('/api/auth/register', {
+        email,
+        password,
+        fullName,
+        phone,
+      });
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       navigate('/dashboard');
-    }, 1000);
+    } catch (err: any) {
+      setError(err.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+    } finally {
+      setIsLoading(false);
+    }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4 py-12">
       <div className="max-w-md w-full">
@@ -22,16 +42,21 @@ export function Register() {
             F
           </div>
           <h1 className="text-3xl font-bold text-navy-900 mb-2">
-            Create Account
+            Đăng ký tài khoản
           </h1>
-          <p className="text-slate-500">Start managing your finances today</p>
+          <p className="text-slate-500">Bắt đầu quản lý tài chính của bạn ngay hôm nay</p>
         </div>
 
         <div className="card p-6 sm:p-8">
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-200">
+              {error}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Full Name
+                Họ và tên
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -40,15 +65,17 @@ export function Register() {
                 <input
                   type="text"
                   required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                   className="input-field pl-10"
-                  placeholder="Nguyen Van A" />
-                
+                  placeholder="Nguyễn Văn A"
+                />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Email Address
+                Địa chỉ Email
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -57,15 +84,17 @@ export function Register() {
                 <input
                   type="email"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="input-field pl-10"
-                  placeholder="you@example.com" />
-                
+                  placeholder="name@example.com"
+                />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Phone Number
+                Số điện thoại
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -74,15 +103,17 @@ export function Register() {
                 <input
                   type="tel"
                   required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                   className="input-field pl-10"
-                  placeholder="0912 345 678" />
-                
+                  placeholder="0912345678"
+                />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Password
+                Mật khẩu
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -91,19 +122,17 @@ export function Register() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="input-field pl-10 pr-10"
-                  placeholder="Min. 8 characters" />
-                
+                  placeholder="Tối thiểu 8 ký tự"
+                />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
-                  
-                  {showPassword ?
-                  <EyeOff className="h-5 w-5" /> :
-
-                  <Eye className="h-5 w-5" />
-                  }
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
             </div>
@@ -114,24 +143,24 @@ export function Register() {
                   id="terms"
                   type="checkbox"
                   required
-                  className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500" />
-                
+                  className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
+                />
               </div>
               <div className="ml-3 text-sm">
                 <label htmlFor="terms" className="text-slate-500">
-                  I agree to the{' '}
+                  Tôi đồng ý với{' '}
                   <a
                     href="#"
-                    className="font-medium text-emerald-600 hover:text-emerald-500">
-                    
-                    Terms of Service
+                    className="font-medium text-emerald-600 hover:text-emerald-500"
+                  >
+                    Điều khoản dịch vụ
                   </a>{' '}
-                  and{' '}
+                  và{' '}
                   <a
                     href="#"
-                    className="font-medium text-emerald-600 hover:text-emerald-500">
-                    
-                    Privacy Policy
+                    className="font-medium text-emerald-600 hover:text-emerald-500"
+                  >
+                    Chính sách bảo mật
                   </a>
                 </label>
               </div>
@@ -140,27 +169,27 @@ export function Register() {
             <button
               type="submit"
               disabled={isLoading}
-              className="btn-primary w-full flex justify-center py-2.5 mt-2">
-              
-              {isLoading ?
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> :
-
-              'Create Account'
-              }
+              className="btn-primary w-full flex justify-center py-2.5 mt-2"
+            >
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                'Tạo tài khoản'
+              )}
             </button>
           </form>
 
           <div className="mt-6 text-center text-sm text-slate-500">
-            Already have an account?{' '}
+            Đã có tài khoản?{' '}
             <Link
               to="/login"
-              className="font-medium text-emerald-600 hover:text-emerald-500">
-              
-              Sign in
+              className="font-medium text-emerald-600 hover:text-emerald-500"
+            >
+              Đăng nhập
             </Link>
           </div>
         </div>
       </div>
-    </div>);
-
+    </div>
+  );
 }
