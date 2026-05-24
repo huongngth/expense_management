@@ -7,6 +7,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Legend,
   ResponsiveContainer,
   PieChart,
   Pie,
@@ -128,7 +129,7 @@ export function Dashboard() {
             <div className="w-8 h-8 rounded-full bg-navy-800 flex items-center justify-center mr-3">
               <Wallet className="w-4 h-4 text-navy-200" />
             </div>
-            <span className="font-medium text-sm">Tổng số dư ròng</span>
+            <span className="font-medium text-sm">Tổng số tiền còn lại</span>
           </div>
           <div className="text-2xl font-bold text-white font-mono">
             {formatVND(summary.totalBalance)}
@@ -141,12 +142,12 @@ export function Dashboard() {
         {/* Trend Chart */}
         <div className="card p-5 lg:col-span-2">
           <h3 className="text-lg font-semibold text-slate-800 mb-4">Thu nhập và Chi tiêu</h3>
-          <div className="h-72">
+          <div className="h-80">
             {trendData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={trendData}
-                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                  margin={{ top: 10, right: 15, left: 10, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                   <XAxis
@@ -154,12 +155,18 @@ export function Dashboard() {
                     axisLine={false}
                     tickLine={false}
                     tick={{ fill: '#64748b', fontSize: 12 }}
+                    dy={5}
                   />
                   <YAxis
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: '#64748b', fontSize: 12 }}
-                    tickFormatter={(value) => `${value / 1000000} triệu`}
+                    tick={{ fill: '#64748b', fontSize: 11 }}
+                    width={80}
+                    tickFormatter={(value) => {
+                      if (value >= 1000000) return `${(value / 1000000).toFixed(1)} tr`;
+                      if (value >= 1000) return `${(value / 1000).toFixed(0)}k`;
+                      return value;
+                    }}
                   />
                   <Tooltip
                     cursor={{ fill: '#f1f5f9' }}
@@ -169,6 +176,13 @@ export function Dashboard() {
                       border: 'none',
                       boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                     }}
+                  />
+                  <Legend
+                    verticalAlign="top"
+                    align="right"
+                    iconType="circle"
+                    iconSize={8}
+                    wrapperStyle={{ fontSize: '13px', paddingBottom: '8px' }}
                   />
                   <Bar
                     dataKey="income"

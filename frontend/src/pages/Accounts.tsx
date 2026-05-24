@@ -32,7 +32,7 @@ export function Accounts() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  
+
   // Form states
   const [name, setName] = useState('');
   const [type, setType] = useState('BANK');
@@ -152,7 +152,7 @@ export function Accounts() {
           <div className="card p-6 bg-navy-900 text-white border-transparent flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <p className="text-navy-200 text-sm font-medium mb-1">
-                Tổng tài sản ròng
+                Số tiền còn lại
               </p>
               <p className="text-3xl font-bold font-mono">
                 {formatVND(totalBalance)}
@@ -161,7 +161,7 @@ export function Accounts() {
             <div className="flex gap-4">
               <div className="bg-navy-800 rounded-lg p-3 px-4">
                 <div className="flex items-center text-emerald-400 text-xs font-medium mb-1">
-                  <ArrowUpRight className="w-3 h-3 mr-1" /> Tài sản
+                  <ArrowUpRight className="w-3 h-3 mr-1" /> Tổng số tiền
                 </div>
                 <p className="font-mono font-semibold">
                   {formatVND(
@@ -257,7 +257,7 @@ export function Accounts() {
             </button>
 
             <h3 className="text-lg font-bold text-navy-900 mb-4">Thêm tài khoản mới</h3>
-            
+
             {error && (
               <div className="mb-4 p-2 bg-red-50 text-red-600 rounded text-sm border border-red-200">
                 {error}
