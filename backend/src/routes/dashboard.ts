@@ -57,12 +57,31 @@ router.get('/summary', async (req: Request, res: Response) => {
     });
     const totalBalance = accountsAgg._sum.balance || 0;
 
-    // 2. Compile monthly trend data (last 6 months)
+    // 2. Compile monthly trend data (filtered by query params or last 6 months)
+    const startDateParam = req.query.startDate as string | undefined;
+    const endDateParam = req.query.endDate as string | undefined;
+
+    let trendStart: Date;
+    let trendEnd: Date;
+
+    if (startDateParam && endDateParam) {
+      trendStart = new Date(startDateParam);
+      trendEnd = new Date(endDateParam);
+      // Ensure trendEnd covers the entire last day
+      trendEnd.setHours(23, 59, 59, 999);
+    } else {
+      // Default: last 6 months
+      trendStart = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+      trendEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    }
+
     const trendData = [];
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const start = new Date(d.getFullYear(), d.getMonth(), 1);
-      const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+    const cursor = new Date(trendStart.getFullYear(), trendStart.getMonth(), 1);
+    const finalMonth = new Date(trendEnd.getFullYear(), trendEnd.getMonth(), 1);
+
+    while (cursor <= finalMonth) {
+      const start = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+      const end = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0, 23, 59, 59, 999);
 
       const inc = await prisma.transaction.aggregate({
         where: {
@@ -83,10 +102,12 @@ router.get('/summary', async (req: Request, res: Response) => {
       });
 
       trendData.push({
-        period: getMonthName(start),
+        period: `${getMonthName(start)} ${start.getFullYear()}`,
         income: inc._sum.amount || 0,
         expense: exp._sum.amount || 0,
       });
+
+      cursor.setMonth(cursor.getMonth() + 1);
     }
 
     // 3. Compile category breakdown (expenses in current month)
