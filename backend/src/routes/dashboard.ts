@@ -17,19 +17,27 @@ router.get('/summary', async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
 
-    // 1. Get current month boundaries
+    // 1. Determine period boundaries (defaults to current month)
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
-    // Sum Income & Expense for current month
+    const startDateParam = req.query.startDate as string | undefined;
+    const endDateParam = req.query.endDate as string | undefined;
+
+    const periodStart = startDateParam ? new Date(startDateParam) : startOfMonth;
+    const periodEnd = endDateParam ? new Date(endDateParam) : endOfMonth;
+    // Ensure end covers entire day
+    periodEnd.setHours(23, 59, 59, 999);
+
+    // Sum Income & Expense for the selected period
     const incomeAgg = await prisma.transaction.aggregate({
       where: {
         userId,
         type: 'INCOME',
         transactionDate: {
-          gte: startOfMonth,
-          lte: endOfMonth,
+          gte: periodStart,
+          lte: periodEnd,
         },
       },
       _sum: { amount: true },
@@ -40,8 +48,8 @@ router.get('/summary', async (req: Request, res: Response) => {
         userId,
         type: 'EXPENSE',
         transactionDate: {
-          gte: startOfMonth,
-          lte: endOfMonth,
+          gte: periodStart,
+          lte: periodEnd,
         },
       },
       _sum: { amount: true },
@@ -58,9 +66,6 @@ router.get('/summary', async (req: Request, res: Response) => {
     const totalBalance = accountsAgg._sum.balance || 0;
 
     // 2. Compile monthly trend data (filtered by query params or last 6 months)
-    const startDateParam = req.query.startDate as string | undefined;
-    const endDateParam = req.query.endDate as string | undefined;
-
     let trendStart: Date;
     let trendEnd: Date;
 
@@ -110,14 +115,14 @@ router.get('/summary', async (req: Request, res: Response) => {
       cursor.setMonth(cursor.getMonth() + 1);
     }
 
-    // 3. Compile category breakdown (expenses in current month)
+    // 3. Compile category breakdown (expenses in selected period)
     const expenses = await prisma.transaction.findMany({
       where: {
         userId,
         type: 'EXPENSE',
         transactionDate: {
-          gte: startOfMonth,
-          lte: endOfMonth,
+          gte: periodStart,
+          lte: periodEnd,
         },
       },
       include: {
@@ -143,9 +148,15 @@ router.get('/summary', async (req: Request, res: Response) => {
       color: catMap[name].color,
     })).sort((a, b) => b.value - a.value);
 
-    // Get recent transactions (e.g. last 5)
+    // Get recent transactions within the selected period (e.g. last 5)
     const recentDb = await prisma.transaction.findMany({
-      where: { userId },
+      where: {
+        userId,
+        transactionDate: {
+          gte: periodStart,
+          lte: periodEnd,
+        },
+      },
       include: { category: true, account: true },
       orderBy: { transactionDate: 'desc' },
       take: 5,

@@ -31,6 +31,7 @@ interface Budget {
     name: string;
     color: string;
   };
+  categoryId?: string;
 }
 
 interface DashboardData {
@@ -57,16 +58,29 @@ export function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+  const [preset, setPreset] = useState<'CUSTOM' | 'LAST_7' | 'LAST_15' | 'LAST_30' | ''>('');
 
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
-      const [summaryData, budgetsData] = await Promise.all([
-        api.get('/api/dashboard/summary'),
-        api.get('/api/budgets')
-      ]);
+      const qs = startDate && endDate ? `?startDate=${startDate}&endDate=${endDate}` : '';
+      const summaryData = await api.get(`/api/dashboard/summary${qs}`);
+      // Get categories and use their currentBudget as source of truth for the Budget Overview
+      const categoriesData = await api.get(`/api/categories${qs}`);
       setData(summaryData);
-      setBudgets(budgetsData.slice(0, 4)); // Show top 4 budgets
+      const budgetsFromCategories = (categoriesData || [])
+        .filter((c: any) => c && c.currentBudget)
+        .map((c: any) => ({
+          id: c.currentBudget.id,
+          amountLimit: c.currentBudget.amountLimit,
+          amountSpent: c.currentBudget.amountSpent,
+          percentUsed: c.currentBudget.percentUsed,
+          category: { name: c.name, color: c.color },
+          categoryId: c.id,
+        }));
+      setBudgets(budgetsFromCategories.slice(0, 4));
     } catch (err) {
       console.error('Error fetching dashboard summary:', err);
     } finally {
@@ -77,6 +91,26 @@ export function Dashboard() {
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  // Re-fetch when date filters change
+  useEffect(() => {
+    // avoid initial double fetch if both empty
+    fetchDashboardData();
+  }, [startDate, endDate]);
+
+  const formatISODate = (d: Date) => d.toISOString().split('T')[0];
+
+  const applyPreset = (p: 'LAST_7' | 'LAST_15' | 'LAST_30') => {
+    const today = new Date();
+    let days = 7;
+    if (p === 'LAST_15') days = 15;
+    if (p === 'LAST_30') days = 30;
+    const start = new Date();
+    start.setDate(today.getDate() - (days - 1));
+    setStartDate(formatISODate(start));
+    setEndDate(formatISODate(today));
+    setPreset(p);
+  };
 
   if (isLoading || !data) {
     return (
@@ -95,6 +129,43 @@ export function Dashboard() {
         <div>
           <h2 className="text-2xl font-bold text-navy-900">Tổng quan tài chính</h2>
           <p className="text-slate-500 text-sm">Theo dõi thu chi và chi tiêu của bạn</p>
+        </div>
+
+        <div className="flex items-center gap-3 mt-3 sm:mt-0">
+          <div className="hidden sm:flex items-center gap-2">
+            <button
+              onClick={() => applyPreset('LAST_7')}
+              className={`px-3 py-1 rounded-md text-sm ${preset === 'LAST_7' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-700'}`}
+            >Last 7 days</button>
+            <button
+              onClick={() => applyPreset('LAST_15')}
+              className={`px-3 py-1 rounded-md text-sm ${preset === 'LAST_15' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-700'}`}
+            >Last 15 days</button>
+            <button
+              onClick={() => applyPreset('LAST_30')}
+              className={`px-3 py-1 rounded-md text-sm ${preset === 'LAST_30' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-700'}`}
+            >Last 30 days</button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => { setStartDate(e.target.value); setPreset('CUSTOM'); }}
+              className="input-field h-9"
+            />
+            <span className="text-slate-400">—</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => { setEndDate(e.target.value); setPreset('CUSTOM'); }}
+              className="input-field h-9"
+            />
+            <button
+              onClick={() => { setStartDate(''); setEndDate(''); setPreset(''); }}
+              className="px-3 py-1 rounded-md text-sm bg-slate-100 text-slate-600"
+            >Clear</button>
+          </div>
         </div>
       </div>
 
@@ -316,7 +387,7 @@ export function Dashboard() {
         <div className="card p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-slate-800">Theo dõi ngân sách</h3>
-            <Link to="/budgets" className="text-sm font-medium text-emerald-600 hover:text-emerald-700">
+            <Link to="/categories" className="text-sm font-medium text-emerald-600 hover:text-emerald-700">
               Quản lý
             </Link>
           </div>
