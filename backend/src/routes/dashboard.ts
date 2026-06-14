@@ -101,38 +101,73 @@ router.get('/summary', async (req: Request, res: Response) => {
     }
 
     const trendData = [];
-    const cursor = new Date(trendStart.getFullYear(), trendStart.getMonth(), 1);
-    const finalMonth = new Date(trendEnd.getFullYear(), trendEnd.getMonth(), 1);
 
-    while (cursor <= finalMonth) {
-      const start = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
-      const end = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0, 23, 59, 59, 999);
+    if (allTimeParam) {
+      const startYear = trendStart.getFullYear();
+      const endYear = trendEnd.getFullYear();
 
-      const inc = await prisma.transaction.aggregate({
-        where: {
-          userId,
-          type: 'INCOME',
-          transactionDate: { gte: start, lte: end },
-        },
-        _sum: { amount: true },
-      });
+      for (let year = startYear; year <= endYear; year += 1) {
+        const start = new Date(year, 0, 1);
+        const end = new Date(year, 11, 31, 23, 59, 59, 999);
 
-      const exp = await prisma.transaction.aggregate({
-        where: {
-          userId,
-          type: 'EXPENSE',
-          transactionDate: { gte: start, lte: end },
-        },
-        _sum: { amount: true },
-      });
+        const inc = await prisma.transaction.aggregate({
+          where: {
+            userId,
+            type: 'INCOME',
+            transactionDate: { gte: start, lte: end },
+          },
+          _sum: { amount: true },
+        });
 
-      trendData.push({
-        period: `${getMonthName(start)} ${start.getFullYear()}`,
-        income: inc._sum.amount || 0,
-        expense: exp._sum.amount || 0,
-      });
+        const exp = await prisma.transaction.aggregate({
+          where: {
+            userId,
+            type: 'EXPENSE',
+            transactionDate: { gte: start, lte: end },
+          },
+          _sum: { amount: true },
+        });
 
-      cursor.setMonth(cursor.getMonth() + 1);
+        trendData.push({
+          period: `${year}`,
+          income: inc._sum.amount || 0,
+          expense: exp._sum.amount || 0,
+        });
+      }
+    } else {
+      const cursor = new Date(trendStart.getFullYear(), trendStart.getMonth(), 1);
+      const finalMonth = new Date(trendEnd.getFullYear(), trendEnd.getMonth(), 1);
+
+      while (cursor <= finalMonth) {
+        const start = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+        const end = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0, 23, 59, 59, 999);
+
+        const inc = await prisma.transaction.aggregate({
+          where: {
+            userId,
+            type: 'INCOME',
+            transactionDate: { gte: start, lte: end },
+          },
+          _sum: { amount: true },
+        });
+
+        const exp = await prisma.transaction.aggregate({
+          where: {
+            userId,
+            type: 'EXPENSE',
+            transactionDate: { gte: start, lte: end },
+          },
+          _sum: { amount: true },
+        });
+
+        trendData.push({
+          period: `${getMonthName(start)} ${start.getFullYear()}`,
+          income: inc._sum.amount || 0,
+          expense: exp._sum.amount || 0,
+        });
+
+        cursor.setMonth(cursor.getMonth() + 1);
+      }
     }
 
     // 3. Compile category breakdown (expenses in selected period)
