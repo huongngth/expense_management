@@ -294,13 +294,25 @@ export function Categories() {
           <div className="hidden md:grid grid-cols-3 gap-8">
             <div className="col-span-2">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-800 flex items-center">
-                  <span className="w-2 h-2 rounded-full bg-red-500 mr-2"></span>
-                  Danh mục Chi phí
-                </h3>
-                <span className="text-sm text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
-                  {expenseCategories.length}
-                </span>
+                <div className="flex items-center space-x-2">
+                  <h3 className="text-lg font-semibold text-slate-800 flex items-center">
+                    <span className="w-2 h-2 rounded-full bg-red-500 mr-2"></span>
+                    Danh mục Chi phí
+                  </h3>
+                  <span className="text-sm text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
+                    {expenseCategories.length}
+                  </span>
+                </div>
+                <button
+                  onClick={() => {
+                    setType('EXPENSE');
+                    setIsAddModalOpen(true);
+                  }}
+                  className="btn-primary py-1.5 px-3 text-sm flex items-center gap-1"
+                >
+                  <Plus className="w-4 h-4" />
+                  Tạo mới
+                </button>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {expenseCategories.length > 0 ? (
@@ -324,13 +336,25 @@ export function Categories() {
 
             <div className="col-span-1">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-800 flex items-center">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2"></span>
-                  Danh mục Thu nhập
-                </h3>
-                <span className="text-sm text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
-                  {incomeCategories.length}
-                </span>
+                <div className="flex items-center space-x-2">
+                  <h3 className="text-lg font-semibold text-slate-800 flex items-center">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2"></span>
+                    Danh mục Thu nhập
+                  </h3>
+                  <span className="text-sm text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
+                    {incomeCategories.length}
+                  </span>
+                </div>
+                <button
+                  onClick={() => {
+                    setType('INCOME');
+                    setIsAddModalOpen(true);
+                  }}
+                  className="btn-primary py-1.5 px-3 text-sm flex items-center gap-1"
+                >
+                  <Plus className="w-4 h-4" />
+                  Tạo mới
+                </button>
               </div>
               <div className="grid grid-cols-1 gap-4">
                 {incomeCategories.length > 0 ? (
@@ -352,18 +376,29 @@ export function Categories() {
           </div>
 
           <div className="md:hidden space-y-4">
-            <div className="flex p-1 bg-slate-200 rounded-lg">
+            <div className="flex items-center gap-2">
+              <div className="flex p-1 bg-slate-200 rounded-lg flex-1">
+                <button
+                  onClick={() => setActiveTab('EXPENSE')}
+                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'EXPENSE' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  Chi phí
+                </button>
+                <button
+                  onClick={() => setActiveTab('INCOME')}
+                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'INCOME' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  Thu nhập
+                </button>
+              </div>
               <button
-                onClick={() => setActiveTab('EXPENSE')}
-                className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'EXPENSE' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                onClick={() => {
+                  setType(activeTab);
+                  setIsAddModalOpen(true);
+                }}
+                className="btn-primary p-2.5 rounded-xl flex items-center justify-center"
               >
-                Chi phí
-              </button>
-              <button
-                onClick={() => setActiveTab('INCOME')}
-                className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'INCOME' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-              >
-                Thu nhập
+                <Plus className="w-5 h-5" />
               </button>
             </div>
 
