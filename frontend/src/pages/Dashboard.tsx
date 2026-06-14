@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   BarChart,
@@ -110,6 +110,18 @@ export function Dashboard() {
     setPreset(p);
   };
 
+  const getSelectedPeriodLabel = () => {
+    if (preset === "LAST_7") return "Last 7 days";
+    if (preset === "LAST_15") return "Last 15 days";
+    if (preset === "LAST_30") return "Last 30 days";
+    if (startDate && endDate) {
+      const start = new Date(startDate).toLocaleDateString("vi-VN");
+      const end = new Date(endDate).toLocaleDateString("vi-VN");
+      return `${start} - ${end}`;
+    }
+    return "Tháng này";
+  };
+
   const summary = data?.summary;
   const trendData = data?.trendData || [];
   const categoryStats = data?.categoryStats || [];
@@ -198,7 +210,7 @@ export function Dashboard() {
                 : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
             }`}
           >
-            {tab === "selected period" ? "Giai đoạn đã chọn" : "Tất cả thời gian"}
+            {tab === "selected period" ? getSelectedPeriodLabel() : "Lũy kế"}
           </button>
         ))}
       </div>
@@ -218,10 +230,8 @@ export function Dashboard() {
                 </div>
                 <span className="font-medium text-sm">
                   {activeTab === "all-time"
-                    ? "Tổng thu nhập (Tất cả thời gian)"
-                    : startDate && endDate
-                    ? "Tổng thu nhập (Thời gian đã chọn)"
-                    : "Tổng thu nhập (Tháng này)"}
+                    ? "Tổng thu nhập (Lũy kế)"
+                    : `Tổng thu nhập (${getSelectedPeriodLabel()})`}
                 </span>
               </div>
               <div className="text-2xl font-bold text-slate-800 font-mono">
@@ -236,10 +246,8 @@ export function Dashboard() {
                 </div>
                 <span className="font-medium text-sm">
                   {activeTab === "all-time"
-                    ? "Tổng chi tiêu (Tất cả thời gian)"
-                    : startDate && endDate
-                    ? "Tổng chi tiêu (Thời gian đã chọn)"
-                    : "Tổng chi tiêu (Tháng này)"}
+                    ? "Tổng chi tiêu (Lũy kế)"
+                    : `Tổng chi tiêu (${getSelectedPeriodLabel()})`}
                 </span>
               </div>
               <div className="text-2xl font-bold text-slate-800 font-mono">
