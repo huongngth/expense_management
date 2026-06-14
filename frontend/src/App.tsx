@@ -7,7 +7,6 @@ import { Dashboard } from './pages/Dashboard';
 import { Transactions } from './pages/Transactions';
 import { Accounts } from './pages/Accounts';
 import { Categories } from './pages/Categories';
-import { Budgets } from './pages/Budgets';
 import { Profile } from './pages/Profile';
 
 function ProtectedRoute() {
@@ -33,7 +32,6 @@ export function App() {
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/accounts" element={<Accounts />} />
             <Route path="/categories" element={<Categories />} />
-            <Route path="/budgets" element={<Budgets />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
         </Route>
