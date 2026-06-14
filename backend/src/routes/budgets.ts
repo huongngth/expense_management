@@ -49,6 +49,120 @@ const enrichBudgets = async (userId: string, budgets: any[]) => {
   return enriched;
 };
 
+const getPeriodRange = (year?: number, month?: number) => {
+  if (year && month) {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+    return { startDate, endDate };
+  }
+  if (year) {
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year, 11, 31, 23, 59, 59, 999);
+    return { startDate, endDate };
+  }
+  return null;
+};
+
+const formatGroupLabel = (budget: any, groupBy: string) => {
+  if (groupBy === 'year') {
+    return String(budget.startDate.getFullYear());
+  }
+  if (groupBy === 'category') {
+    return budget.category?.name || 'Unknown';
+  }
+  const month = budget.startDate.getMonth();
+  const year = budget.startDate.getFullYear();
+  const monthName = budget.startDate.toLocaleString('vi-VN', { month: 'short' });
+  return `${monthName} ${year}`;
+};
+
+// GET /api/budgets/history
+router.get('/history', async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const groupBy = String(req.query.groupBy || 'month');
+    const year = req.query.year ? parseInt(String(req.query.year), 10) : undefined;
+    const month = req.query.month ? parseInt(String(req.query.month), 10) : undefined;
+    const categoryId = req.query.categoryId ? String(req.query.categoryId) : undefined;
+
+    const period = getPeriodRange(year, month);
+    const where: any = { userId };
+    if (categoryId) where.categoryId = categoryId;
+    if (period) {
+      where.AND = [
+        { startDate: { lte: period.endDate } },
+        { endDate: { gte: period.startDate } },
+      ];
+    }
+
+    const budgets = await prisma.budget.findMany({
+      where,
+      include: { category: true },
+      orderBy: { startDate: 'desc' },
+    });
+
+    const enriched = await enrichBudgets(userId, budgets);
+
+    const groupMap: Record<string, any> = {};
+    for (const budget of enriched) {
+      const label = groupBy === 'year'
+        ? new Date(budget.startDate).getFullYear().toString()
+        : groupBy === 'category'
+          ? budget.category.name
+          : `${new Date(budget.startDate).toLocaleString('vi-VN', { month: 'short' })} ${new Date(budget.startDate).getFullYear()}`;
+
+      if (!groupMap[label]) {
+        groupMap[label] = {
+          label,
+          totalLimit: 0,
+          totalSpent: 0,
+          count: 0,
+          percentUsedSum: 0,
+        };
+      }
+
+      groupMap[label].totalLimit += budget.amountLimit;
+      groupMap[label].totalSpent += budget.amountSpent;
+      groupMap[label].count += 1;
+      groupMap[label].percentUsedSum += budget.percentUsed;
+    }
+
+    const groups = Object.values(groupMap).map((group) => ({
+      label: group.label,
+      totalLimit: group.totalLimit,
+      totalSpent: group.totalSpent,
+      count: group.count,
+      avgPercentUsed: group.count > 0 ? Math.round(group.percentUsedSum / group.count) : 0,
+    })).sort((a, b) => b.totalLimit - a.totalLimit);
+
+    const totalLimit = enriched.reduce((sum, budget) => sum + budget.amountLimit, 0);
+    const totalSpent = enriched.reduce((sum, budget) => sum + budget.amountSpent, 0);
+    const averageUsage = enriched.length > 0
+      ? Math.round(enriched.reduce((sum, budget) => sum + budget.percentUsed, 0) / enriched.length)
+      : 0;
+
+    return res.json({
+      items: enriched,
+      groups,
+      stats: {
+        totalBudgets: enriched.length,
+        totalLimit,
+        totalSpent,
+        averageUsage,
+      },
+      selected: {
+        groupBy,
+        year,
+        month,
+        categoryId,
+      }
+    });
+  } catch (error: any) {
+    console.error('Error fetching budget history:', error);
+    return res.status(500).json({ message: 'Error retrieving budget history.' });
+  }
+});
+
 // GET /api/budgets
 router.get('/', async (req: Request, res: Response) => {
   try {

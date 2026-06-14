@@ -24,11 +24,20 @@ router.get('/summary', async (req: Request, res: Response) => {
 
     const startDateParam = req.query.startDate as string | undefined;
     const endDateParam = req.query.endDate as string | undefined;
+    const allTimeParam = req.query.allTime === 'true';
 
-    const periodStart = startDateParam ? new Date(startDateParam) : startOfMonth;
-    const periodEnd = endDateParam ? new Date(endDateParam) : endOfMonth;
-    // Ensure end covers entire day
-    periodEnd.setHours(23, 59, 59, 999);
+    let periodStart: Date;
+    let periodEnd: Date;
+
+    if (allTimeParam) {
+      periodStart = new Date(0);
+      periodEnd = new Date(now.getFullYear() + 10, 11, 31, 23, 59, 59, 999);
+    } else {
+      periodStart = startDateParam ? new Date(startDateParam) : startOfMonth;
+      periodEnd = endDateParam ? new Date(endDateParam) : endOfMonth;
+      // Ensure end covers entire day
+      periodEnd.setHours(23, 59, 59, 999);
+    }
 
     // Sum Income & Expense for the selected period
     const incomeAgg = await prisma.transaction.aggregate({
@@ -69,7 +78,18 @@ router.get('/summary', async (req: Request, res: Response) => {
     let trendStart: Date;
     let trendEnd: Date;
 
-    if (startDateParam && endDateParam) {
+    if (allTimeParam) {
+      const earliestTx = await prisma.transaction.findFirst({
+        where: { userId },
+        orderBy: { transactionDate: 'asc' },
+      });
+      if (earliestTx) {
+        trendStart = new Date(earliestTx.transactionDate.getFullYear(), earliestTx.transactionDate.getMonth(), 1);
+      } else {
+        trendStart = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+      }
+      trendEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    } else if (startDateParam && endDateParam) {
       trendStart = new Date(startDateParam);
       trendEnd = new Date(endDateParam);
       // Ensure trendEnd covers the entire last day

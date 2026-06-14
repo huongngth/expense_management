@@ -1,34 +1,38 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
-import { api } from '../lib/api';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff, Mail, Lock, User, Phone } from "lucide-react";
+import { api } from "../lib/api";
 
 export function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    setError("");
     try {
-      const data = await api.post('/api/auth/register', {
-        email,
-        password,
-        fullName,
-        phone,
-      });
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/dashboard');
+      const data = await api.post(
+        "/api/auth/register",
+        {
+          email,
+          password,
+          fullName,
+          phone,
+        },
+        { skipAuth: true },
+      );
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+      setError(err.message || "Đăng ký thất bại. Vui lòng thử lại.");
     } finally {
       setIsLoading(false);
     }
@@ -44,7 +48,9 @@ export function Register() {
           <h1 className="text-3xl font-bold text-navy-900 mb-2">
             Đăng ký tài khoản
           </h1>
-          <p className="text-slate-500">Bắt đầu quản lý tài chính của bạn ngay hôm nay</p>
+          <p className="text-slate-500">
+            Bắt đầu quản lý tài chính của bạn ngay hôm nay
+          </p>
         </div>
 
         <div className="card p-6 sm:p-8">
@@ -120,7 +126,7 @@ export function Register() {
                   <Lock className="h-5 w-5 text-slate-400" />
                 </div>
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -132,7 +138,11 @@ export function Register() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -148,14 +158,14 @@ export function Register() {
               </div>
               <div className="ml-3 text-sm">
                 <label htmlFor="terms" className="text-slate-500">
-                  Tôi đồng ý với{' '}
+                  Tôi đồng ý với{" "}
                   <a
                     href="#"
                     className="font-medium text-emerald-600 hover:text-emerald-500"
                   >
                     Điều khoản dịch vụ
-                  </a>{' '}
-                  và{' '}
+                  </a>{" "}
+                  và{" "}
                   <a
                     href="#"
                     className="font-medium text-emerald-600 hover:text-emerald-500"
@@ -174,13 +184,13 @@ export function Register() {
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
-                'Tạo tài khoản'
+                "Tạo tài khoản"
               )}
             </button>
           </form>
 
           <div className="mt-6 text-center text-sm text-slate-500">
-            Đã có tài khoản?{' '}
+            Đã có tài khoản?{" "}
             <Link
               to="/login"
               className="font-medium text-emerald-600 hover:text-emerald-500"

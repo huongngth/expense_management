@@ -36,7 +36,6 @@ export function Accounts() {
   // Form states
   const [name, setName] = useState('');
   const [type, setType] = useState('BANK');
-  const [balance, setBalance] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -66,12 +65,11 @@ export function Accounts() {
       await api.post('/api/accounts', {
         name,
         type,
-        balance: balance ? parseFloat(balance) : 0,
+        balance: 0,
         currency: 'VND'
       });
       setName('');
       setType('BANK');
-      setBalance('');
       setIsAddModalOpen(false);
       fetchAccounts();
     } catch (err: any) {
@@ -293,19 +291,6 @@ export function Accounts() {
                   <option value="CASH">Tiền mặt</option>
                   <option value="CREDIT">Thẻ tín dụng</option>
                 </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Số dư ban đầu
-                </label>
-                <input
-                  type="number"
-                  value={balance}
-                  onChange={(e) => setBalance(e.target.value)}
-                  className="input-field"
-                  placeholder="Ví dụ: 500000"
-                />
               </div>
 
               <div className="flex gap-3 pt-2">

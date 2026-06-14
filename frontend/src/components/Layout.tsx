@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useLocation, Outlet } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link, useLocation, Outlet } from "react-router-dom";
 import {
   LayoutDashboard,
   ArrowRightLeft,
@@ -9,52 +9,70 @@ import {
   User,
   LogOut,
   Bell,
-  Plus
-} from 'lucide-react';
+  Plus,
+} from "lucide-react";
 
 export function Layout() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
-  const cachedUser = localStorage.getItem('user');
-  const user = cachedUser ? JSON.parse(cachedUser) : { fullName: 'Nguyễn Văn A', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026024d' };
+
+  const cachedUser = localStorage.getItem("user");
+  const user = cachedUser
+    ? JSON.parse(cachedUser)
+    : {
+        fullName: "Nguyễn Văn A",
+        avatarUrl: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+      };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   const navItems = [
     {
-      path: '/dashboard',
-      label: 'Tổng quan',
-      icon: LayoutDashboard
+      path: "/dashboard",
+      label: "Tổng quan",
+      icon: LayoutDashboard,
     },
     {
-      path: '/transactions',
-      label: 'Giao dịch',
-      icon: ArrowRightLeft
+      path: "/transactions",
+      label: "Giao dịch",
+      icon: ArrowRightLeft,
     },
     {
-      path: '/accounts',
-      label: 'Tài khoản',
-      icon: Wallet
+      path: "/accounts",
+      label: "Tài khoản",
+      icon: Wallet,
     },
     {
-      path: '/categories',
-      label: 'Danh mục',
-      icon: Tags
+      path: "/categories",
+      label: "Danh mục",
+      icon: Tags,
+    },
+    {
+      path: "/budget-history",
+      label: "Ngân sách",
+      icon: Target,
     },
   ];
 
   const getPageTitle = (path: string) => {
     switch (path) {
-      case '/dashboard': return 'Tổng quan tài chính';
-      case '/transactions': return 'Quản lý giao dịch';
-      case '/accounts': return 'Danh sách tài khoản';
-      case '/categories': return 'Quản lý danh mục';
-      case '/profile': return 'Hồ sơ cá nhân';
-      default: return 'Tổng quan tài chính';
+      case "/dashboard":
+        return "Tổng quan tài chính";
+      case "/transactions":
+        return "Quản lý giao dịch";
+      case "/accounts":
+        return "Danh sách tài khoản";
+      case "/categories":
+        return "Quản lý danh mục";
+      case "/budget-history":
+        return "Lịch sử ngân sách";
+      case "/profile":
+        return "Hồ sơ cá nhân";
+      default:
+        return "Tổng quan tài chính";
     }
   };
 
@@ -78,11 +96,13 @@ export function Layout() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${isActive(item.path) ? 'bg-navy-800 text-emerald-400 font-medium' : 'text-slate-300 hover:bg-navy-800 hover:text-white'}`}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${isActive(item.path) ? "bg-navy-800 text-emerald-400 font-medium" : "text-slate-300 hover:bg-navy-800 hover:text-white"}`}
               >
                 <Icon
                   size={20}
-                  className={isActive(item.path) ? 'text-emerald-400' : 'text-slate-400'}
+                  className={
+                    isActive(item.path) ? "text-emerald-400" : "text-slate-400"
+                  }
                 />
                 <span>{item.label}</span>
               </Link>
@@ -93,11 +113,13 @@ export function Layout() {
         <div className="p-4 border-t border-navy-800">
           <Link
             to="/profile"
-            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors mb-1 ${isActive('/profile') ? 'bg-navy-800 text-emerald-400 font-medium' : 'text-slate-300 hover:bg-navy-800 hover:text-white'}`}
+            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors mb-1 ${isActive("/profile") ? "bg-navy-800 text-emerald-400 font-medium" : "text-slate-300 hover:bg-navy-800 hover:text-white"}`}
           >
             <User
               size={20}
-              className={isActive('/profile') ? 'text-emerald-400' : 'text-slate-400'}
+              className={
+                isActive("/profile") ? "text-emerald-400" : "text-slate-400"
+              }
             />
             <span>Hồ sơ cá nhân</span>
           </Link>
@@ -157,21 +179,25 @@ export function Layout() {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around items-center h-16 px-2 z-30 pb-safe">
         {[
           {
-            path: '/dashboard',
+            path: "/dashboard",
             icon: LayoutDashboard,
-            label: 'Trang chủ'
+            label: "Trang chủ",
           },
           {
-            path: '/transactions',
+            path: "/transactions",
             icon: ArrowRightLeft,
-            label: 'Giao dịch'
+            label: "Giao dịch",
           },
-
           {
-            path: '/profile',
+            path: "/budget-history",
+            icon: Target,
+            label: "Ngân sách",
+          },
+          {
+            path: "/profile",
             icon: User,
-            label: 'Cá nhân'
-          }
+            label: "Cá nhân",
+          },
         ].map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
@@ -179,11 +205,11 @@ export function Layout() {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${active ? 'text-emerald-500' : 'text-slate-500'}`}
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${active ? "text-emerald-500" : "text-slate-500"}`}
             >
               <Icon
                 size={20}
-                className={active ? 'text-emerald-500' : 'text-slate-400'}
+                className={active ? "text-emerald-500" : "text-slate-400"}
               />
               <span className="text-[10px] font-medium">{item.label}</span>
             </Link>
