@@ -45,11 +45,6 @@ export function Layout() {
       label: 'Danh mục',
       icon: Tags
     },
-    {
-      path: '/budgets',
-      label: 'Ngân sách',
-      icon: Target
-    }
   ];
 
   const getPageTitle = (path: string) => {
@@ -58,7 +53,6 @@ export function Layout() {
       case '/transactions': return 'Quản lý giao dịch';
       case '/accounts': return 'Danh sách tài khoản';
       case '/categories': return 'Quản lý danh mục';
-      case '/budgets': return 'Ngân sách chi tiêu';
       case '/profile': return 'Hồ sơ cá nhân';
       default: return 'Tổng quan tài chính';
     }
@@ -172,11 +166,7 @@ export function Layout() {
             icon: ArrowRightLeft,
             label: 'Giao dịch'
           },
-          {
-            path: '/budgets',
-            icon: Target,
-            label: 'Ngân sách'
-          },
+
           {
             path: '/profile',
             icon: User,

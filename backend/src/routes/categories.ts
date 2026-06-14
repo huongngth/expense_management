@@ -16,7 +16,59 @@ router.get('/', async (req: Request, res: Response) => {
       where: { userId },
       orderBy: { name: 'asc' },
     });
-    return res.json(categories);
+
+    const now = new Date();
+    const enriched: any[] = [];
+
+    for (const c of categories) {
+      // total amount for category (all time)
+      const agg = await prisma.transaction.aggregate({
+        where: { userId, categoryId: c.id, type: c.type },
+        _sum: { amount: true },
+      });
+      const totalSpent = agg._sum.amount || 0;
+
+      // find active budget for this category (if any)
+      const activeBudget = await prisma.budget.findFirst({
+        where: {
+          userId,
+          categoryId: c.id,
+          startDate: { lte: now },
+          endDate: { gte: now },
+        },
+      });
+
+      let budgetInfo = null;
+      if (activeBudget) {
+        const bAgg = await prisma.transaction.aggregate({
+          where: {
+            userId,
+            categoryId: c.id,
+            type: c.type,
+            transactionDate: { gte: activeBudget.startDate, lte: activeBudget.endDate },
+          },
+          _sum: { amount: true },
+        });
+        const amountSpent = bAgg._sum.amount || 0;
+        const percentUsed = activeBudget.amountLimit > 0 ? Math.round((amountSpent / activeBudget.amountLimit) * 100) : 0;
+        budgetInfo = {
+          id: activeBudget.id,
+          amountLimit: activeBudget.amountLimit,
+          amountSpent,
+          percentUsed,
+          startDate: activeBudget.startDate.toISOString().split('T')[0],
+          endDate: activeBudget.endDate.toISOString().split('T')[0],
+        };
+      }
+
+      enriched.push({
+        ...c,
+        totalSpent,
+        currentBudget: budgetInfo,
+      });
+    }
+
+    return res.json(enriched);
   } catch (error: any) {
     console.error('Error fetching categories:', error);
     return res.status(500).json({ message: 'Error retrieving categories.' });

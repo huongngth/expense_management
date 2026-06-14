@@ -41,7 +41,7 @@ cd backend
 npm install
 
 # Run database migrations and generate the Prisma client
-npx prisma migrate dev --name init
+npx prisma migrate
 
 # Boot the API server in hot-reload development mode
 npm run dev
