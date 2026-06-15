@@ -135,9 +135,6 @@ export function Dashboard() {
           <h2 className="text-2xl font-bold text-navy-900">
             Tổng quan tài chính
           </h2>
-          <p className="text-slate-500 text-sm">
-            Theo dõi thu chi và chi tiêu của bạn
-          </p>
         </div>
 
         {activeTab === "selected period" && (
