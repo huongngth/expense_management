@@ -12,44 +12,82 @@ router.use(authenticateToken);
 router.get('/', async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
+    const { startDate, endDate } = req.query;
+
+    let parsedStartDate: Date | undefined;
+    let parsedEndDate: Date | undefined;
+
+    if (startDate) {
+      parsedStartDate = new Date(String(startDate));
+    }
+    if (endDate) {
+      parsedEndDate = new Date(String(endDate));
+      parsedEndDate.setHours(23, 59, 59, 999);
+    }
+
     const categories = await prisma.category.findMany({
       where: { userId },
       orderBy: { name: 'asc' },
     });
 
-    const now = new Date();
     const enriched: any[] = [];
 
     for (const c of categories) {
-      // total amount for category (all time)
+      // total amount for category (filtered by date range if provided)
+      const whereTx: any = { userId, categoryId: c.id, type: c.type };
+      if (parsedStartDate || parsedEndDate) {
+        whereTx.transactionDate = {};
+        if (parsedStartDate) whereTx.transactionDate.gte = parsedStartDate;
+        if (parsedEndDate) whereTx.transactionDate.lte = parsedEndDate;
+      }
+
       const agg = await prisma.transaction.aggregate({
-        where: { userId, categoryId: c.id, type: c.type },
+        where: whereTx,
         _sum: { amount: true },
       });
       const totalSpent = agg._sum.amount || 0;
 
-      // find active budget for this category (if any)
-      const activeBudget = await prisma.budget.findFirst({
-        where: {
-          userId,
-          categoryId: c.id,
-          startDate: { lte: now },
-          endDate: { gte: now },
-        },
-      });
-
-      let budgetInfo = null;
-      if (activeBudget) {
-        const bAgg = await prisma.transaction.aggregate({
+      // find active budget for this category (overlapping with query range or active now)
+      let activeBudget = null;
+      if (parsedStartDate && parsedEndDate) {
+        activeBudget = await prisma.budget.findFirst({
           where: {
             userId,
             categoryId: c.id,
-            type: c.type,
-            transactionDate: { gte: activeBudget.startDate, lte: activeBudget.endDate },
+            startDate: { lte: parsedEndDate },
+            endDate: { gte: parsedStartDate },
           },
-          _sum: { amount: true },
         });
-        const amountSpent = bAgg._sum.amount || 0;
+      } else {
+        const now = new Date();
+        activeBudget = await prisma.budget.findFirst({
+          where: {
+            userId,
+            categoryId: c.id,
+            startDate: { lte: now },
+            endDate: { gte: now },
+          },
+        });
+      }
+
+      let budgetInfo = null;
+      if (activeBudget) {
+        let amountSpent = 0;
+        if (parsedStartDate && parsedEndDate) {
+          amountSpent = totalSpent;
+        } else {
+          const bAgg = await prisma.transaction.aggregate({
+            where: {
+              userId,
+              categoryId: c.id,
+              type: c.type,
+              transactionDate: { gte: activeBudget.startDate, lte: activeBudget.endDate },
+            },
+            _sum: { amount: true },
+          });
+          amountSpent = bAgg._sum.amount || 0;
+        }
+
         const percentUsed = activeBudget.amountLimit > 0 ? Math.round((amountSpent / activeBudget.amountLimit) * 100) : 0;
         budgetInfo = {
           id: activeBudget.id,

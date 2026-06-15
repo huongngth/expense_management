@@ -114,6 +114,19 @@ export function Transactions() {
     fetchTransactions();
   }, [currentPage, searchTerm, filterType, filterCategory, filterAccount, filterStartDate, filterEndDate]);
 
+  // Synchronize categoryId when transaction type changes to prevent mismatch
+  useEffect(() => {
+    const filtered = categories.filter(c => type === 'ALL' || c.type === type);
+    if (filtered.length > 0) {
+      const isCurrentValid = filtered.some(c => c.id === categoryId);
+      if (!isCurrentValid) {
+        setCategoryId(filtered[0].id);
+      }
+    } else {
+      setCategoryId('');
+    }
+  }, [type, categories, categoryId]);
+
   const handleAddTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!description.trim() || !amount || !accountId || !categoryId) return;

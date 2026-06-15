@@ -151,7 +151,7 @@ export function BudgetHistory() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="card p-4">
-          <p className="text-sm text-slate-500">Tổng số hạn mức</p>
+          <p className="text-sm text-slate-500">Tổng số ngân sách</p>
           <p className="mt-2 text-2xl font-semibold text-slate-900">
             {stats.totalBudgets}
           </p>
@@ -252,10 +252,10 @@ export function BudgetHistory() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-lg font-semibold text-slate-800">
-                {headerLabel} ngân sách
+                Ngân sách {headerLabel}
               </h3>
               <p className="text-sm text-slate-500">
-                Tổng hợp chi tiêu và hạn mức theo nhóm.
+                Tổng hợp chi tiêu và ngân sách theo nhóm.
               </p>
             </div>
           </div>
@@ -276,7 +276,7 @@ export function BudgetHistory() {
                   <Tooltip formatter={(value: number) => formatVND(value)} />
                   <Legend />
                   <Bar dataKey="totalSpent" name="Đã chi" fill="#10B981" />
-                  <Bar dataKey="totalLimit" name="Hạn mức" fill="#3B82F6" />
+                  <Bar dataKey="totalLimit" name="ngân sách" fill="#3B82F6" />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -303,7 +303,7 @@ export function BudgetHistory() {
               </p>
             </div>
             <div className="rounded-xl bg-slate-50 p-4">
-              <p className="text-sm text-slate-500">Số lượng hạn mức</p>
+              <p className="text-sm text-slate-500">Số lượng ngân sách</p>
               <p className="mt-2 text-xl font-semibold text-slate-900">
                 {stats.totalBudgets}
               </p>
@@ -333,7 +333,7 @@ export function BudgetHistory() {
                   Khoảng thời gian
                 </th>
                 <th className="px-4 py-3 text-slate-500 uppercase tracking-wide text-right">
-                  Hạn mức
+                  ngân sách
                 </th>
                 <th className="px-4 py-3 text-slate-500 uppercase tracking-wide text-right">
                   Đã chi
@@ -359,7 +359,7 @@ export function BudgetHistory() {
                     colSpan={5}
                     className="px-4 py-8 text-center text-slate-500"
                   >
-                    Không tìm thấy hạn mức nào trong khoảng chọn.
+                    Không tìm thấy ngân sách nào trong khoảng chọn.
                   </td>
                 </tr>
               ) : (
