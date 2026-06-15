@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -9,12 +8,10 @@ import {
   User,
   LogOut,
   Bell,
-  Plus,
 } from "lucide-react";
 
 export function Layout() {
   const location = useLocation();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const cachedUser = localStorage.getItem("user");
   const user = cachedUser

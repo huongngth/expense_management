@@ -260,7 +260,7 @@ export function Dashboard() {
                 <span className="font-medium text-sm">Tổng số tiền còn lại</span>
               </div>
               <div className="text-2xl font-bold text-white font-mono">
-                {formatVND(summary.totalBalance)}
+                {formatVND(summary.totalIncomeThisMonth - summary.totalExpenseThisMonth)}
               </div>
             </div>
           </div>

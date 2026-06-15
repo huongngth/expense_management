@@ -21,6 +21,8 @@ interface Category {
 interface Account {
   id: string;
   name: string;
+  balance: number;
+  type: string;
 }
 
 interface Transaction {
@@ -131,6 +133,13 @@ export function Transactions() {
     e.preventDefault();
     if (!description.trim() || !amount || !accountId || !categoryId) return;
 
+    // Check balance if type is EXPENSE
+    const selectedAccount = accounts.find(a => a.id === accountId);
+    if (type === 'EXPENSE' && selectedAccount && parseFloat(amount) > selectedAccount.balance) {
+      setError(`Không thể chọn tài khoản ${selectedAccount.name} do không đủ số dư (Số dư hiện tại: ${formatVND(selectedAccount.balance)}).`);
+      return;
+    }
+
     setIsSubmitting(true);
     setError('');
     try {
@@ -146,6 +155,7 @@ export function Transactions() {
       setAmount('');
       setTransactionDate(new Date().toISOString().split('T')[0]);
       setIsAddModalOpen(false);
+      await fetchFiltersData();
       fetchTransactions();
     } catch (err: any) {
       setError(err.message || 'Tạo giao dịch thất bại.');
@@ -158,6 +168,7 @@ export function Transactions() {
     if (!window.confirm('Bạn có chắc chắn muốn xóa giao dịch này không?')) return;
     try {
       await api.delete(`/api/transactions/${id}`);
+      await fetchFiltersData();
       fetchTransactions();
     } catch (err: any) {
       alert(err.message || 'Xóa giao dịch thất bại.');
@@ -172,6 +183,9 @@ export function Transactions() {
     setFilterEndDate('');
     setCurrentPage(1);
   };
+
+  const selectedAccount = accounts.find(a => a.id === accountId);
+  const isOverdrawn = type === 'EXPENSE' && selectedAccount && amount && parseFloat(amount) > selectedAccount.balance;
 
   return (
     <div className="h-full flex flex-col space-y-4 max-w-6xl mx-auto">
@@ -509,13 +523,20 @@ export function Transactions() {
                     required
                     value={accountId}
                     onChange={(e) => setAccountId(e.target.value)}
-                    className="input-field"
+                    className={`input-field ${isOverdrawn ? 'border-red-500 focus:ring-red-500 focus:border-red-500 bg-red-50/20' : ''}`}
                   >
                     <option value="" disabled>Chọn tài khoản</option>
                     {accounts.map((a) => (
-                      <option key={a.id} value={a.id}>{a.name}</option>
+                      <option key={a.id} value={a.id}>
+                        {a.name} ({formatVND(a.balance)})
+                      </option>
                     ))}
                   </select>
+                  {isOverdrawn && selectedAccount && (
+                    <p className="mt-1 text-xs text-red-600 font-semibold animate-pulse">
+                      Không đủ số dư
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">

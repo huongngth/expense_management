@@ -15,9 +15,7 @@ export const MOCK_USER = {
 
 export const MOCK_ACCOUNTS = [
   { id: 'a1', name: 'Vietcombank', type: 'BANK', balance: 15500000, currency: 'VND' },
-  { id: 'a2', name: 'Ví MoMo', type: 'EWALLET', balance: 2450000, currency: 'VND' },
-  { id: 'a3', name: 'Tiền mặt', type: 'CASH', balance: 850000, currency: 'VND' },
-  { id: 'a4', name: 'Thẻ tín dụng', type: 'CREDIT', balance: -4200000, currency: 'VND' }
+  { id: 'a3', name: 'Tiền mặt', type: 'CASH', balance: 850000, currency: 'VND' }
 ];
 
 export const MOCK_CATEGORIES = [
@@ -44,7 +42,7 @@ export const MOCK_TRANSACTIONS = Array.from({ length: 50 }).map((_, i) => {
     c3: ['Áo thun Zara', 'Giày thể thao mới', 'Mua sách ngoại văn', 'Ốp lưng điện thoại', 'Quà sinh nhật cho bạn'],
     c4: ['Hóa đơn tiền điện', 'Hóa đơn tiền nước', 'Gói cước Internet', 'Thuê bao Netflix', 'Gói iCloud lưu trữ'],
     c5: ['Nhận lương tháng', 'Tiền làm dự án ngoài', 'Thanh toán hợp đồng freelancer'],
-    c6: ['Thưởng đạt chỉ tiêu', 'Thưởng ngày lễ Tết', 'Hoàn tiền thẻ tín dụng'],
+    c6: ['Thưởng đạt chỉ tiêu', 'Thưởng ngày lễ Tết', 'Hoàn tiền mua sắm'],
   };
 
   const descList = descriptions[category.id as keyof typeof descriptions] || ['Giao dịch'];

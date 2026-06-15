@@ -53,9 +53,7 @@ async function main() {
   // 3. Create Accounts
   const accountsData = [
     { id: 'a1', name: 'Vietcombank', type: 'BANK', balance: 15500000, currency: 'VND' },
-    { id: 'a2', name: 'Ví MoMo', type: 'EWALLET', balance: 2450000, currency: 'VND' },
     { id: 'a3', name: 'Tiền mặt', type: 'CASH', balance: 850000, currency: 'VND' },
-    { id: 'a4', name: 'Thẻ tín dụng', type: 'CREDIT', balance: -4200000, currency: 'VND' },
   ];
 
   for (const acc of accountsData) {
@@ -107,7 +105,7 @@ async function main() {
   const now = new Date();
   const txs = [];
   const categoriesList = ['c1', 'c2', 'c3', 'c4', 'c5', 'c6'];
-  const accountsList = ['a1', 'a2', 'a3', 'a4'];
+  const accountsList = ['a1', 'a3'];
 
   for (let i = 0; i < 50; i++) {
     const isExpense = i % 5 !== 0; // 80% expenses, 20% income
