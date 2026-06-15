@@ -147,7 +147,7 @@ export function Accounts() {
           <div className="card p-6 bg-navy-900 text-white border-transparent flex flex-col sm:flex-row sm:items-center justify-between w-1/3">
             <div>
               <p className="text-navy-200 text-sm font-medium mb-1">
-                Số tiền còn lại
+                Tổng số tiền còn lại
               </p>
               <p className="text-3xl font-bold font-mono">
                 {formatVND(totalBalance)}

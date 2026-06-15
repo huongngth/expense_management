@@ -143,15 +143,13 @@ export function BudgetHistory() {
           <h2 className="text-2xl font-bold text-navy-900">
             Lịch sử ngân sách
           </h2>
-          <p className="text-slate-500 text-sm">
-            Xem báo cáo ngân sách theo tháng, năm hoặc theo danh mục.
-          </p>
+        
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="card p-4">
-          <p className="text-sm text-slate-500">Tổng số ngân sách</p>
+          <p className="text-sm text-slate-500">Tổng số mục chi tiêu (có lập ngân sách)</p>
           <p className="mt-2 text-2xl font-semibold text-slate-900">
             {stats.totalBudgets}
           </p>
@@ -254,9 +252,6 @@ export function BudgetHistory() {
               <h3 className="text-lg font-semibold text-slate-800">
                 Ngân sách {headerLabel}
               </h3>
-              <p className="text-sm text-slate-500">
-                Tổng hợp chi tiêu và ngân sách theo nhóm.
-              </p>
             </div>
           </div>
           <div className="h-[320px]">
@@ -291,7 +286,7 @@ export function BudgetHistory() {
           <h3 className="text-lg font-semibold text-slate-800 mb-4">Tóm tắt</h3>
           <div className="space-y-3">
             <div className="rounded-xl bg-slate-50 p-4">
-              <p className="text-sm text-slate-500">Tổng giới hạn ngân sách</p>
+              <p className="text-sm text-slate-500">Tổng Ngân sách</p>
               <p className="mt-2 text-xl font-semibold text-slate-900">
                 {formatVND(stats.totalLimit)}
               </p>
@@ -303,7 +298,7 @@ export function BudgetHistory() {
               </p>
             </div>
             <div className="rounded-xl bg-slate-50 p-4">
-              <p className="text-sm text-slate-500">Số lượng ngân sách</p>
+              <p className="text-sm text-slate-500">Số mục chi tiêu (có lập ngân sách)</p>
               <p className="mt-2 text-xl font-semibold text-slate-900">
                 {stats.totalBudgets}
               </p>
