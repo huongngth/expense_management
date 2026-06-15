@@ -126,10 +126,7 @@ export function Accounts() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-navy-900">Tài khoản</h2>
-          <p className="text-slate-500 text-sm">
-            Quản lý ví và tài khoản ngân hàng của bạn
-          </p>
+          <h2 className="text-2xl font-bold text-navy-900">Quản lý tài khoản giao dịch</h2>
         </div>
         <button
           onClick={() => setIsAddModalOpen(true)}
@@ -147,7 +144,7 @@ export function Accounts() {
       ) : (
         <>
           {/* Total Balance Card */}
-          <div className="card p-6 bg-navy-900 text-white border-transparent flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="card p-6 bg-navy-900 text-white border-transparent flex flex-col sm:flex-row sm:items-center justify-between w-1/3">
             <div>
               <p className="text-navy-200 text-sm font-medium mb-1">
                 Số tiền còn lại
@@ -155,36 +152,6 @@ export function Accounts() {
               <p className="text-3xl font-bold font-mono">
                 {formatVND(totalBalance)}
               </p>
-            </div>
-            <div className="flex gap-4">
-              <div className="bg-navy-800 rounded-lg p-3 px-4">
-                <div className="flex items-center text-emerald-400 text-xs font-medium mb-1">
-                  <ArrowUpRight className="w-3 h-3 mr-1" /> Tổng số tiền
-                </div>
-                <p className="font-mono font-semibold">
-                  {formatVND(
-                    accounts.filter((a) => a.balance > 0).reduce(
-                      (s, a) => s + a.balance,
-                      0
-                    )
-                  )}
-                </p>
-              </div>
-              <div className="bg-navy-800 rounded-lg p-3 px-4">
-                <div className="flex items-center text-red-400 text-xs font-medium mb-1">
-                  <ArrowDownRight className="w-3 h-3 mr-1" /> Khoản nợ
-                </div>
-                <p className="font-mono font-semibold">
-                  {formatVND(
-                    Math.abs(
-                      accounts.filter((a) => a.balance < 0).reduce(
-                        (s, a) => s + a.balance,
-                        0
-                      )
-                    )
-                  )}
-                </p>
-              </div>
             </div>
           </div>
 

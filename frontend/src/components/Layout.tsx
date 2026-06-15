@@ -57,25 +57,6 @@ export function Layout() {
     },
   ];
 
-  const getPageTitle = (path: string) => {
-    switch (path) {
-      case "/dashboard":
-        return "Tổng quan tài chính";
-      case "/transactions":
-        return "Quản lý giao dịch";
-      case "/accounts":
-        return "Danh sách tài khoản";
-      case "/categories":
-        return "Quản lý danh mục";
-      case "/budget-history":
-        return "Lịch sử ngân sách";
-      case "/profile":
-        return "Hồ sơ cá nhân";
-      default:
-        return "Tổng quan tài chính";
-    }
-  };
-
   const isActive = (path: string) => location.pathname === path;
 
   return (
@@ -147,7 +128,6 @@ export function Layout() {
 
           <div className="hidden md:block">
             <h1 className="text-xl font-semibold text-slate-800 capitalize">
-              {getPageTitle(location.pathname)}
             </h1>
           </div>
 
