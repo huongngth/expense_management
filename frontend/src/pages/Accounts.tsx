@@ -2,11 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Wallet,
   Building2,
-  Smartphone,
-  CreditCard,
   Plus,
-  ArrowUpRight,
-  ArrowDownRight,
   X,
   Trash2
 } from 'lucide-react';
@@ -15,9 +11,7 @@ import { api } from '../lib/api';
 
 const accountTypeLabels: { [key: string]: string } = {
   BANK: 'Ngân hàng',
-  EWALLET: 'Ví điện tử',
   CASH: 'Tiền mặt',
-  CREDIT: 'Thẻ tín dụng',
 };
 
 interface Account {
@@ -91,34 +85,6 @@ export function Accounts() {
     }
   };
 
-  const getAccountIcon = (type: string) => {
-    switch (type) {
-      case 'BANK':
-        return <Building2 className="w-6 h-6 text-blue-500" />;
-      case 'EWALLET':
-        return <Smartphone className="w-6 h-6 text-purple-500" />;
-      case 'CREDIT':
-        return <CreditCard className="w-6 h-6 text-red-500" />;
-      case 'CASH':
-      default:
-        return <Wallet className="w-6 h-6 text-emerald-500" />;
-    }
-  };
-
-  const getAccountColor = (type: string) => {
-    switch (type) {
-      case 'BANK':
-        return 'bg-blue-50';
-      case 'EWALLET':
-        return 'bg-purple-50';
-      case 'CREDIT':
-        return 'bg-red-50';
-      case 'CASH':
-      default:
-        return 'bg-emerald-50';
-    }
-  };
-
   const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
 
   return (
@@ -127,6 +93,7 @@ export function Accounts() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-navy-900">Quản lý tài khoản giao dịch</h2>
+          <p className="text-sm text-slate-500 mt-1">Theo dõi số dư tiền mặt và ngân hàng</p>
         </div>
         <button
           onClick={() => setIsAddModalOpen(true)}
@@ -144,14 +111,29 @@ export function Accounts() {
       ) : (
         <>
           {/* Total Balance Card */}
-          <div className="card p-6 bg-navy-900 text-white border-transparent flex flex-col sm:flex-row sm:items-center justify-between w-1/3">
-            <div>
-              <p className="text-navy-200 text-sm font-medium mb-1">
-                Tổng số tiền còn lại
-              </p>
-              <p className="text-3xl font-bold font-mono">
-                {formatVND(totalBalance)}
-              </p>
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-navy-900 via-navy-850 to-emerald-950 p-6 text-white border border-navy-800 shadow-xl max-w-md w-full">
+            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-blue-500/10 rounded-full blur-xl pointer-events-none" />
+            
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-md">
+                <Wallet className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div>
+                <p className="text-navy-200 text-xs font-semibold uppercase tracking-wider">
+                  Tổng số tiền còn lại
+                </p>
+                <span className="text-[10px] text-emerald-300 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                  Hoạt động
+                </span>
+              </div>
+            </div>
+            <p className="text-3xl font-extrabold font-mono tracking-tight bg-gradient-to-r from-white via-white to-emerald-200 bg-clip-text text-transparent">
+              {formatVND(totalBalance)}
+            </p>
+            <div className="mt-4 pt-4 border-t border-white/10 flex justify-between text-xs text-navy-300">
+              <span>Cập nhật thời gian thực</span>
+              <span className="font-semibold text-emerald-400 font-mono">{accounts.length} Tài khoản</span>
             </div>
           </div>
 
@@ -160,38 +142,46 @@ export function Accounts() {
             {accounts.map((account) => (
               <div
                 key={account.id}
-                className="card p-5 hover:shadow-md transition-shadow group relative overflow-hidden"
+                className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/50 p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between min-h-[170px]"
               >
+                {/* Top Accent Bar */}
+                <div className={`absolute top-0 left-0 h-1.5 w-full ${account.type === 'BANK' ? 'bg-gradient-to-r from-blue-500 to-indigo-500' : 'bg-gradient-to-r from-emerald-500 to-teal-500'}`} />
+                
                 <div className="flex justify-between items-start mb-4">
-                  <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center ${getAccountColor(account.type)}`}
-                  >
-                    {getAccountIcon(account.type)}
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${account.type === 'BANK' ? 'bg-blue-55 text-blue-600' : 'bg-emerald-55 text-emerald-600'}`}>
+                    {account.type === 'BANK' ? (
+                      <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                        <Building2 className="w-5 h-5 text-blue-600" />
+                      </div>
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+                        <Wallet className="w-5 h-5 text-emerald-600" />
+                      </div>
+                    )}
                   </div>
                   <button
                     onClick={() => handleDeleteAccount(account.id)}
-                    className="text-slate-400 hover:text-red-600 p-1 rounded-md hover:bg-red-50 transition-colors"
+                    className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition-all duration-200"
+                    title="Xóa tài khoản"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
 
-                <div>
-                  <p className="text-sm font-medium text-slate-500 mb-1">
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                     {account.name}
                   </p>
-                  <p
-                    className={`text-xl font-bold font-mono ${account.balance < 0 ? 'text-red-600' : 'text-slate-800'}`}
-                  >
+                  <p className={`text-2xl font-bold font-mono tracking-tight ${account.balance < 0 ? 'text-red-600' : 'text-slate-800'}`}>
                     {formatVND(account.balance)}
                   </p>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500">
-                  <span className="bg-slate-100 px-2 py-1 rounded font-medium">
+                <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full font-medium text-[11px] ${account.type === 'BANK' ? 'bg-blue-50 text-blue-700 border border-blue-100/50' : 'bg-emerald-50 text-emerald-700 border border-emerald-100/50'}`}>
                     {accountTypeLabels[account.type] || account.type}
                   </span>
-                  <span>VND</span>
+                  <span className="font-semibold text-slate-400">VND</span>
                 </div>
               </div>
             ))}
@@ -199,12 +189,13 @@ export function Accounts() {
             {/* Add Account Card */}
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="card p-5 border-2 border-dashed border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-emerald-400 transition-colors flex flex-col items-center justify-center min-h-[180px] text-slate-500 hover:text-emerald-600 group"
+              className="group relative overflow-hidden rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 hover:bg-white hover:border-emerald-400 transition-all duration-300 flex flex-col items-center justify-center min-h-[170px] text-slate-500 hover:text-emerald-600 shadow-sm"
             >
-              <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-all duration-300">
                 <Plus className="w-6 h-6" />
               </div>
-              <p className="font-medium">Thêm tài khoản mới</p>
+              <p className="font-semibold text-sm">Thêm tài khoản mới</p>
+              <p className="text-xs text-slate-400 mt-1">Ngân hàng hoặc Tiền mặt</p>
             </button>
           </div>
         </>
@@ -240,7 +231,7 @@ export function Accounts() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="input-field"
-                  placeholder="Ví dụ: Vietcombank, Ví Momo"
+                  placeholder="Ví dụ: Vietcombank, Tiền mặt sinh hoạt"
                 />
               </div>
 
@@ -254,9 +245,7 @@ export function Accounts() {
                   className="input-field"
                 >
                   <option value="BANK">Tài khoản ngân hàng</option>
-                  <option value="EWALLET">Ví điện tử</option>
                   <option value="CASH">Tiền mặt</option>
-                  <option value="CREDIT">Thẻ tín dụng</option>
                 </select>
               </div>
 
