@@ -322,7 +322,7 @@ export function Categories() {
 
                   <div className="flex justify-between items-center text-xs mt-1.5 bg-slate-50 p-2 rounded-lg border border-slate-100 shadow-sm">
                     <span className={remaining >= 0 ? "text-emerald-700 font-semibold" : "text-red-700 font-semibold"}>
-                      {remaining >= 0 ? `Còn lại: ${formatVND(remaining)}` : `Vượt ngân sách: ${formatVND(Math.abs(remaining))}`}
+                      {remaining >= 0 ? `${formatVND(remaining)}` : `- ${formatVND(Math.abs(remaining))}`}
                     </span>
                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase ${statusBg} ${statusColor} border border-current/10`}>
                       {statusText}
