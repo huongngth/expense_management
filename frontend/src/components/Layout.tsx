@@ -149,10 +149,6 @@ export function Layout() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <button className="relative p-2 text-slate-400 hover:text-slate-600 transition-colors rounded-full hover:bg-slate-100">
-              <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
             <div className="hidden md:flex items-center space-x-3 pl-4 border-l border-slate-200">
               <img
                 src={user.avatarUrl || "https://i.pravatar.cc/150"}
