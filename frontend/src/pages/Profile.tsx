@@ -75,7 +75,6 @@ export function Profile() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-navy-900">Thiết lập hồ sơ</h2>
         <p className="text-slate-500 text-sm">
           Quản lý chi tiết tài khoản và bảo mật của bạn
         </p>

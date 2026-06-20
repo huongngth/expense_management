@@ -26,6 +26,25 @@ export function Layout() {
     localStorage.removeItem("user");
   };
 
+  const getPageTitle = () => {
+    switch (location.pathname) {
+      case "/dashboard":
+        return "Tổng quan tài chính";
+      case "/transactions":
+        return "Quản lý giao dịch Thu - Chi";
+      case "/accounts":
+        return "Quản lý tài khoản giao dịch";
+      case "/categories":
+        return "Quản lý danh mục Thu - Chi";
+      case "/budget-history":
+        return "Lịch sử ngân sách";
+      case "/profile":
+        return "Thiết lập hồ sơ";
+      default:
+        return "FinTrack";
+    }
+  };
+
   const navItems = [
     {
       path: "/dashboard",
@@ -120,19 +139,16 @@ export function Layout() {
             <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center font-bold text-white mr-3">
               F
             </div>
-            <span className="text-lg font-bold text-navy-900">FinTrack</span>
+            <span className="text-lg font-bold text-navy-900">{getPageTitle()}</span>
           </div>
 
           <div className="hidden md:block">
-            <h1 className="text-xl font-semibold text-slate-800 capitalize">
+            <h1 className="text-xl font-semibold text-slate-800">
+              {getPageTitle()}
             </h1>
           </div>
 
           <div className="flex items-center space-x-4">
-            <button className="relative p-2 text-slate-400 hover:text-slate-600 transition-colors rounded-full hover:bg-slate-100">
-              <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
             <div className="hidden md:flex items-center space-x-3 pl-4 border-l border-slate-200">
               <img
                 src={user.avatarUrl || "https://i.pravatar.cc/150"}

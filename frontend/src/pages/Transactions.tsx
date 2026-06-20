@@ -190,10 +190,7 @@ export function Transactions() {
   return (
     <div className="h-full flex flex-col space-y-4 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-navy-900">Quản lý giao dịch Thu - Chi</h2>
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsAddModalOpen(true)}

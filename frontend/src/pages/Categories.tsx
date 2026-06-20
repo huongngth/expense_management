@@ -43,18 +43,36 @@ export function Categories() {
 
   // Watch tabs states
   const [watchTab, setWatchTab] = useState<'PERIOD' | 'ALL_TIME'>('PERIOD');
-  const [timePeriod, setTimePeriod] = useState<'this_month' | 'last_7_days' | 'last_15_days' | 'last_30_days' | 'clear'>('this_month');
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [preset, setPreset] = useState<
+    "CUSTOM" | "LAST_7" | "LAST_15" | "LAST_30" | ""
+  >("");
+
+  const formatISODate = (d: Date) => d.toISOString().split("T")[0];
+
+  const applyPreset = (p: "LAST_7" | "LAST_15" | "LAST_30") => {
+    const today = new Date();
+    let days = 7;
+    if (p === "LAST_15") days = 15;
+    if (p === "LAST_30") days = 30;
+    const start = new Date();
+    start.setDate(today.getDate() - (days - 1));
+    setStartDate(formatISODate(start));
+    setEndDate(formatISODate(today));
+    setPreset(p);
+  };
 
   const getSelectedPeriodLabel = () => {
-    switch (timePeriod) {
-      case 'this_month': return 'Tháng này';
-      case 'last_7_days': return '7 ngày qua';
-      case 'last_15_days': return '15 ngày qua';
-      case 'last_30_days': return '30 ngày qua';
-      case 'clear':
-      default:
-        return 'Tất cả';
+    if (preset === "LAST_7") return "7 ngày qua";
+    if (preset === "LAST_15") return "15 ngày qua";
+    if (preset === "LAST_30") return "30 ngày qua";
+    if (startDate && endDate) {
+      const start = new Date(startDate).toLocaleDateString("vi-VN");
+      const end = new Date(endDate).toLocaleDateString("vi-VN");
+      return `${start} - ${end}`;
     }
+    return "Tháng này";
   };
 
   const [name, setName] = useState('');
@@ -95,62 +113,27 @@ export function Categories() {
     }
   };
 
-  const getDateRange = (period: typeof timePeriod) => {
-    const today = new Date();
-    let start: Date;
-    let end: Date = new Date(today);
-
-    switch (period) {
-      case 'this_month': {
-        start = new Date(today.getFullYear(), today.getMonth(), 1);
-        end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-        break;
-      }
-      case 'last_7_days': {
-        start = new Date(today);
-        start.setDate(today.getDate() - 6);
-        break;
-      }
-      case 'last_15_days': {
-        start = new Date(today);
-        start.setDate(today.getDate() - 14);
-        break;
-      }
-      case 'last_30_days': {
-        start = new Date(today);
-        start.setDate(today.getDate() - 29);
-        break;
-      }
-      case 'clear':
-      default:
-        return { startDate: '', endDate: '' };
-    }
-
-    const formatDate = (date: Date) => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    };
-
-    return {
-      startDate: formatDate(start),
-      endDate: formatDate(end)
-    };
-  };
-
   const fetchCategories = async (
     currentWatchTab: 'PERIOD' | 'ALL_TIME' = watchTab,
-    currentTimePeriod: typeof timePeriod = timePeriod
+    currentStartDate: string = startDate,
+    currentEndDate: string = endDate
   ) => {
     try {
       setIsLoading(true);
       let url = '/api/categories';
       if (currentWatchTab === 'PERIOD') {
-        const { startDate, endDate } = getDateRange(currentTimePeriod);
-        if (startDate && endDate) {
-          url += `?startDate=${startDate}&endDate=${endDate}`;
+        let start = currentStartDate;
+        let end = currentEndDate;
+
+        if (!start || !end) {
+          const today = new Date();
+          const startOfThisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+          const endOfThisMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+          start = formatISODate(startOfThisMonth);
+          end = formatISODate(endOfThisMonth);
         }
+
+        url += `?startDate=${start}&endDate=${end}`;
       }
       const data = await api.get(url);
       setCategories(data);
@@ -162,8 +145,8 @@ export function Categories() {
   };
 
   useEffect(() => {
-    fetchCategories(watchTab, timePeriod);
-  }, [watchTab, timePeriod]);
+    fetchCategories(watchTab, startDate, endDate);
+  }, [watchTab, startDate, endDate]);
 
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -377,42 +360,63 @@ export function Categories() {
   );
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-navy-900">Quản lý danh mục Thu - Chi</h2>
-        </div>
+    <div className="space-y-6 mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4">
 
         {watchTab === 'PERIOD' && (
-          <div className="flex items-center gap-2 mt-3 sm:mt-0">
-            {[
-              { id: 'this_month', label: 'Tháng này' },
-              { id: 'last_7_days', label: 'Last 7 days' },
-              { id: 'last_15_days', label: 'Last 15 days' },
-              { id: 'last_30_days', label: 'Last 30 days' },
-            ].map((period) => (
+          <div className="flex items-center gap-3 mt-3 sm:mt-0">
+            <div className="hidden sm:flex items-center gap-2">
               <button
-                key={period.id}
-                onClick={() => setTimePeriod(period.id as any)}
-                className={`px-3 py-1 rounded-md text-sm transition-colors ${
-                  timePeriod === period.id
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                }`}
+                onClick={() => applyPreset("LAST_7")}
+                className={`px-3 py-1 rounded-md text-sm ${preset === "LAST_7" ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-700"}`}
               >
-                {period.label}
+                Last 7 days
               </button>
-            ))}
-            <button
-              onClick={() => setTimePeriod('clear')}
-              className={`px-3 py-1 rounded-md text-sm transition-colors ${
-                timePeriod === 'clear'
-                  ? 'bg-emerald-500 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              Clear
-            </button>
+              <button
+                onClick={() => applyPreset("LAST_15")}
+                className={`px-3 py-1 rounded-md text-sm ${preset === "LAST_15" ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-700"}`}
+              >
+                Last 15 days
+              </button>
+              <button
+                onClick={() => applyPreset("LAST_30")}
+                className={`px-3 py-1 rounded-md text-sm ${preset === "LAST_30" ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-700"}`}
+              >
+                Last 30 days
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  setPreset("CUSTOM");
+                }}
+                className="input-field h-9"
+              />
+              <span className="text-slate-400">—</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  setPreset("CUSTOM");
+                }}
+                className="input-field h-9"
+              />
+              <button
+                onClick={() => {
+                  setStartDate("");
+                  setEndDate("");
+                  setPreset("");
+                }}
+                className="px-3 py-1 rounded-md text-sm bg-slate-100 text-slate-600"
+              >
+                Clear
+              </button>
+            </div>
           </div>
         )}
       </div>
