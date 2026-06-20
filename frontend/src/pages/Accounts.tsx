@@ -89,19 +89,45 @@ export function Accounts() {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-navy-900">Quản lý tài khoản giao dịch</h2>
-          <p className="text-sm text-slate-500 mt-1">Theo dõi số dư tiền mặt và ngân hàng</p>
+      {/* Header and Total Balance Card */}
+      <div className="flex flex-col sm:flex-row justify-between gap-6">
+        {/* Total Balance Card (on the left) */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-navy-900 via-navy-850 to-emerald-950 p-6 text-white border border-navy-800 shadow-xl max-w-md w-full">
+          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-blue-500/10 rounded-full blur-xl pointer-events-none" />
+          
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-md">
+              <Wallet className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-navy-200 text-xs font-semibold uppercase tracking-wider">
+                Tổng số tiền còn lại
+              </p>
+              <span className="text-[10px] text-emerald-300 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                Hoạt động
+              </span>
+            </div>
+          </div>
+          <p className="text-3xl font-extrabold font-mono tracking-tight bg-gradient-to-r from-white via-white to-emerald-200 bg-clip-text text-transparent">
+            {formatVND(totalBalance)}
+          </p>
+          <div className="mt-4 pt-4 border-t border-white/10 flex justify-between text-xs text-navy-300">
+            <span>Cập nhật thời gian thực</span>
+            <span className="font-semibold text-emerald-400 font-mono">{accounts.length} Tài khoản</span>
+          </div>
         </div>
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="btn-primary flex items-center justify-center sm:w-auto"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Thêm tài khoản
-        </button>
+
+        {/* Add Account Button (on the right) */}
+        <div className="flex flex-col sm:items-end gap-2 flex-shrink-0 w-full sm:w-auto">
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="btn-primary flex items-center justify-center w-full sm:w-auto"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Thêm tài khoản
+          </button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -110,33 +136,6 @@ export function Accounts() {
         </div>
       ) : (
         <>
-          {/* Total Balance Card */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-navy-900 via-navy-850 to-emerald-950 p-6 text-white border border-navy-800 shadow-xl max-w-md w-full">
-            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-blue-500/10 rounded-full blur-xl pointer-events-none" />
-            
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-md">
-                <Wallet className="w-5 h-5 text-emerald-400" />
-              </div>
-              <div>
-                <p className="text-navy-200 text-xs font-semibold uppercase tracking-wider">
-                  Tổng số tiền còn lại
-                </p>
-                <span className="text-[10px] text-emerald-300 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                  Hoạt động
-                </span>
-              </div>
-            </div>
-            <p className="text-3xl font-extrabold font-mono tracking-tight bg-gradient-to-r from-white via-white to-emerald-200 bg-clip-text text-transparent">
-              {formatVND(totalBalance)}
-            </p>
-            <div className="mt-4 pt-4 border-t border-white/10 flex justify-between text-xs text-navy-300">
-              <span>Cập nhật thời gian thực</span>
-              <span className="font-semibold text-emerald-400 font-mono">{accounts.length} Tài khoản</span>
-            </div>
-          </div>
-
           {/* Accounts Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {accounts.map((account) => (

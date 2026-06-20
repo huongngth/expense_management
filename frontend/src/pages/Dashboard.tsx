@@ -130,12 +130,7 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-navy-900">
-            Tổng quan tài chính
-          </h2>
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4">
 
         {activeTab === "selected period" && (
           <div className="flex items-center gap-3 mt-3 sm:mt-0">

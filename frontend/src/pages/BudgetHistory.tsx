@@ -138,14 +138,7 @@ export function BudgetHistory() {
 
   return (
     <div className="h-full max-w-7xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-navy-900">
-            Lịch sử ngân sách
-          </h2>
-        
-        </div>
-      </div>
+
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="card p-4">
@@ -263,11 +256,15 @@ export function BudgetHistory() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={historyGroups.slice(0, 8)}
-                  margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  margin={{ top: 10, right: 20, left: 30, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
                   <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                  <YAxis tickFormatter={(value) => formatVND(value)} />
+                  <YAxis
+                    tickFormatter={(value) => formatVND(value)}
+                    width={90}
+                    tick={{ fill: "#475569", fontSize: 11 }}
+                  />
                   <Tooltip formatter={(value: number) => formatVND(value)} />
                   <Legend />
                   <Bar dataKey="totalSpent" name="Đã chi" fill="#10B981" />
